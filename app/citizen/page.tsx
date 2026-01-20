@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from "react";
+import { api } from "@/lib/api";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { BookOpen, CheckCircle, FileText, AlertTriangle, MapPin, ChevronRight, Phone } from 'lucide-react';
@@ -10,6 +12,11 @@ import { labelsTa } from '@/config/labels.ta';
 import { Card } from '@/components/ui/card';
 
 export default function CitizenPage() {
+  useEffect(() => {
+    api.get("/health")
+      .then((res) => console.log("✅ Backend connected:", res.data))
+      .catch((err) => console.error("❌ Backend NOT connected:", err));
+  }, []);
   const { language } = useAuthStore();
   const t = language === 'en' ? labelsEn : labelsTa;
   const [district, setDistrict] = useState('Chennai');
