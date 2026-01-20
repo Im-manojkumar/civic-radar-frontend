@@ -1,6 +1,6 @@
 'use client';
-
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { api } from "@/lib/api";
 import { 
   Search, GraduationCap, Heart, ShoppingCart, Users, 
   ChevronRight, X, FileText, CheckCircle, Wheat, Baby, 
@@ -32,6 +32,17 @@ interface Scheme {
   docsTa: string[];
   icon: React.ElementType;
 }
+
+type BackendPolicy = {
+  id: string;
+  sector?: string;
+  title?: string;
+  name?: string;
+  description?: string;
+  eligibility?: string[];
+  documents_required?: string[];
+  apply_link?: string;
+};
 
 const SCHEMES_DATA: Scheme[] = [
   {
@@ -154,9 +165,54 @@ export default function SchemesPage() {
   const [activeTab, setActiveTab] = useState<SchemeCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedScheme, setSelectedScheme] = useState<Scheme | null>(null);
+  const [schemes, setSchemes] = useState<Scheme[]>(SCHEMES_DATA);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  
+  useEffect(() => {
+    async function loadSchemes() {
+      try {
+        setLoading(true);
+        setApiError(null);
+
+        const res = await api.get("/policies"); // backend endpoint
+        const raw: BackendPolicy[] = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+
+        const mapped: Scheme[] = raw.map((p, idx) => ({
+          id: p.id ?? String(idx),
+          category:
+            (p.sector === "Health" ? "Health" :
+            p.sector === "Education" ? "Education" :
+            p.sector === "PDS" ? "PDS" : "Welfare"),
+          titleEn: p.title || p.name || "Government Scheme",
+          titleTa: p.title || p.name || "அரசுத் திட்டம்",
+          descEn: p.description || "No description available",
+          descTa: p.description || "விவரம் இல்லை",
+          benefitsEn: "See scheme details",
+          benefitsTa: "விவரங்களை காண்க",
+          eligibilityEn: p.eligibility?.length ? p.eligibility : ["Check official eligibility rules"],
+          eligibilityTa: p.eligibility?.length ? p.eligibility : ["அதிகாரப்பூர்வ தகுதி விதிகளை பார்க்கவும்"],
+          docsEn: p.documents_required?.length ? p.documents_required : ["Check required documents"],
+          docsTa: p.documents_required?.length ? p.documents_required : ["தேவையான ஆவணங்களை பார்க்கவும்"],
+          icon:
+            p.sector === "Health" ? Stethoscope :
+            p.sector === "Education" ? GraduationCap :
+            p.sector === "PDS" ? Wheat : Users,
+        }));
+
+        if (mapped.length > 0) setSchemes(mapped);
+      } catch (err: any) {
+        setApiError("Backend not reachable, showing demo schemes.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadSchemes();
+  }, []);
 
   // Filter Logic
-  const filteredSchemes = SCHEMES_DATA.filter(scheme => {
+  const filteredSchemes = schemes.filter(scheme => {
     const matchesCategory = activeTab === 'All' || scheme.category === activeTab;
     const matchesSearch = 
       scheme.titleEn.toLowerCase().includes(searchQuery.toLowerCase()) || 
