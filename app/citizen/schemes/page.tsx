@@ -242,6 +242,16 @@ export default function SchemesPage() {
               {language === 'en' ? 'Find benefits you are eligible for.' : 'உங்களுக்கு தகுதியான சலுகைகளைக் கண்டறியவும்.'}
             </p>
           </div>
+        {loading && (
+          <div className="text-sm text-slate-500">
+            {language === "en" ? "Loading schemes from server..." : "சர்வரில் இருந்து திட்டங்கள் ஏற்றப்படுகிறது..."}
+          </div>
+        )}
+        {apiError && (
+          <div className="text-sm text-amber-600">
+            {apiError}
+          </div>
+        )}
 
           {/* Search Bar */}
           <div className="relative w-full md:w-80">
