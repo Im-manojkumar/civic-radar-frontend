@@ -175,7 +175,7 @@ export default function SchemesPage() {
         setLoading(true);
         setApiError(null);
 
-        const res = await api.get("/policies"); // backend endpoint
+        const res = await api.get("/policies/sectors"); // backend endpoint
         const raw: BackendPolicy[] = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
 
         const mapped: Scheme[] = raw.map((p, idx) => ({
