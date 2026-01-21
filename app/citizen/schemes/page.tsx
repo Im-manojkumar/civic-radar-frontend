@@ -174,16 +174,40 @@ export default function SchemesPage() {
       try {
         setLoading(true);
         setApiError(null);
+        // 1) fetch sectors
+        const sectorsRes = await api.get("/policies/sectors");
+        const sectors = Array.isArray(sectorsRes.data) ? sectorsRes.data : sectorsRes.data?.items ?? [];
 
-        const res = await api.get("/policies/sectors"); // backend endpoint
-        const raw: BackendPolicy[] = Array.isArray(res.data) ? res.data : res.data?.items ?? [];
+        let allPolicies: any[] = [];
+
+        // 2) fetch policies for each sector
+        for (const sector of sectors) {
+          const sectorId = sector.id ?? sector.sector_id ?? sector.slug;
+          if (!sectorId) continue;
+
+          const policiesRes = await api.get(`/policies/sectors/${sectorId}/list`);
+          const policies = Array.isArray(policiesRes.data) ? policiesRes.data : policiesRes.data?.items ?? [];
+
+          allPolicies = allPolicies.concat(
+            policies.map((p: any) => ({
+              ...p,
+              sector: sector.name ?? sector.title ?? sectorId,
+          }))
+        );
+      }
+
+      // policies list becomes your raw input
+      const raw: any[] = allPolicies;
 
         const mapped: Scheme[] = raw.map((p, idx) => ({
           id: p.id ?? String(idx),
-          category:
-            (p.sector === "Health" ? "Health" :
-            p.sector === "Education" ? "Education" :
-            p.sector === "PDS" ? "PDS" : "Welfare"),
+          category: (
+            String(p.sector).toLowerCase().includes("health") ? "Health" :
+            String(p.sector).toLowerCase().includes("education") ? "Education" :
+            String(p.sector).toLowerCase().includes("pds") || String(p.sector).toLowerCase().includes("ration") ? "PDS" :
+            "Welfare"
+          ),
+ 
           titleEn: p.title || p.name || "Government Scheme",
           titleTa: p.title || p.name || "அரசுத் திட்டம்",
           descEn: p.description || "No description available",
