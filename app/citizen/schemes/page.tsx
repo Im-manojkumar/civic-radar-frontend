@@ -183,6 +183,7 @@ export default function SchemesPage() {
         // 2) fetch policies for each sector
         for (const sector of sectors) {
           const sectorId = sector.id ?? sector.sector_id ?? sector.slug;
+          console.log("SECTOR OBJ =", sector);
           if (!sectorId) continue;
 
           const policiesRes = await api.get(`/policies/sectors/${sectorId}/list`);
