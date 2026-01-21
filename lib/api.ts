@@ -3,6 +3,7 @@ import axios from 'axios';
 // In Next.js, use relative path to leverage the proxy in next.config.mjs
 // or use env var for full URL
 const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+console.log("API baseURL =", baseURL);
 
 export const api = axios.create({
   baseURL,
