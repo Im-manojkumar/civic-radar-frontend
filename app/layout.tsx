@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { Inter, Noto_Sans_Tamil } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import { uiConfig } from '@/config/ui';
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.variable} ${notoSansTamil.variable} font-sans antialiased bg-background text-foreground`}>
         {children}
+        <Analytics />
       </body>
     </html>
   );
