@@ -182,7 +182,12 @@ export default function SchemesPage() {
 
         // 2) fetch policies for each sector
         for (const sector of sectors) {
-          const sectorId = sector.id ?? sector.sector_id ?? sector.slug;
+         const sectorId =
+              sector.id ||
+              sector.sector_id ||
+              sector.code ||
+              sector.name;
+
           console.log("SECTOR OBJ =", sector);
           if (!sectorId) continue;
 
@@ -220,9 +225,14 @@ export default function SchemesPage() {
           docsEn: p.documents_required?.length ? p.documents_required : ["Check required documents"],
           docsTa: p.documents_required?.length ? p.documents_required : ["தேவையான ஆவணங்களை பார்க்கவும்"],
           icon:
-            p.sector === "Health" ? Stethoscope :
-            p.sector === "Education" ? GraduationCap :
-            p.sector === "PDS" ? Wheat : Users,
+            icon:
+                String(p.sector).toLowerCase().includes("health") ? Stethoscope :
+                String(p.sector).toLowerCase().includes("education") ? GraduationCap :
+                String(p.sector).toLowerCase().includes("pds") ||
+                String(p.sector).toLowerCase().includes("ration") ? Wheat :
+                Users,
+
+           
         }));
 
         if (mapped.length > 0) setSchemes(mapped);
